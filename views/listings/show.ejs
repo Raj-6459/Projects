@@ -136,7 +136,7 @@ layout("/layouts/boilerplate") -%>
             data-rating="<%= review.rating %>"
           ></p>
           <p class="card-text"><%= review.comment %></p>
-          <% if (currUser && review.author._id.equals(currUser._id)) { %>
+          <% if (currUser && review.author._id.toString() === currUser._id.toString()) { %>
           <form
             class="mb-3"
             method="POST"
