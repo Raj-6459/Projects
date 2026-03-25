@@ -3,6 +3,9 @@ const User = require("../models/user");
 const isSafeRedirectPath = (value) =>
   typeof value === "string" && value.startsWith("/") && !value.startsWith("//");
 
+const isAuthPagePath = (value) =>
+  typeof value === "string" && (value.startsWith("/login") || value.startsWith("/signup"));
+
 const getRedirectFromReferer = (referer) => {
   if (!referer || typeof referer !== "string") {
     return "";
@@ -11,12 +14,12 @@ const getRedirectFromReferer = (referer) => {
   try {
     const parsed = new URL(referer);
     const path = `${parsed.pathname}${parsed.search}`;
-    if (!isSafeRedirectPath(path) || path.startsWith("/login")) {
+    if (!isSafeRedirectPath(path) || isAuthPagePath(path)) {
       return "";
     }
     return path;
   } catch {
-    if (!isSafeRedirectPath(referer) || referer.startsWith("/login")) {
+    if (!isSafeRedirectPath(referer) || isAuthPagePath(referer)) {
       return "";
     }
     return referer;
@@ -63,9 +66,11 @@ module.exports.renderLoginForm = (req, res) => {
 module.exports.login = async (req, res) => {
   req.flash("success", "Welcome back to Wanderlust!");
   const redirectFromBody = isSafeRedirectPath(req.body.redirectUrl)
+    && !isAuthPagePath(req.body.redirectUrl)
     ? req.body.redirectUrl
     : null;
   const redirectFromSession = isSafeRedirectPath(req.session.redirectUrl)
+    && !isAuthPagePath(req.session.redirectUrl)
     ? req.session.redirectUrl
     : null;
   const redirectUrl = redirectFromBody || redirectFromSession || "/listings";
