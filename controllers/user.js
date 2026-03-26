@@ -64,17 +64,21 @@ module.exports.renderLoginForm = (req, res) => {
 };
 
 module.exports.login = async (req, res) => {
-  req.flash("success", "Welcome back to Wanderlust!");
+ 
   const redirectFromBody = isSafeRedirectPath(req.body.redirectUrl)
     && !isAuthPagePath(req.body.redirectUrl)
     ? req.body.redirectUrl
     : null;
+
   const redirectFromSession = isSafeRedirectPath(req.session.redirectUrl)
     && !isAuthPagePath(req.session.redirectUrl)
     ? req.session.redirectUrl
     : null;
+
   const redirectUrl = redirectFromBody || redirectFromSession || "/listings";
   delete req.session.redirectUrl;
+
+  req.flash("success", "Welcome back to Wanderlust!");
   res.redirect(redirectUrl);
 };
 
