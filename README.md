@@ -60,3 +60,5 @@ MAJOR_PROJECT/
 - Cloudinary account
 - Mapbox account/token
 
+## Architecture:
+MVC (Model-View-Controller) pattern for clean separation of concerns and modular code maintainability.
