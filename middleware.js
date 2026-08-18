@@ -6,6 +6,9 @@ const { listingSchema, reviewSchema } = require("./schema.js");
 const getValidationErrorMessage = (error) =>
   error.details.map((el) => el.message).join(",");
 
+const isAuthPagePath = (value) =>
+  typeof value === "string" && (value.startsWith("/login") || value.startsWith("/signup"));
+
 const getSafeRedirectUrl = (req) => {
   const fallback = "/listings";
   let redirectUrl = fallback;
@@ -40,7 +43,7 @@ const getSafeRedirectUrl = (req) => {
     return fallback;
   }
 
-  if (redirectUrl.startsWith("/login")) {
+  if (isAuthPagePath(redirectUrl)) {
     return fallback;
   }
 
@@ -61,6 +64,13 @@ module.exports.isLoggedIn = (req, res, next) => {
 module.exports.saveRedirectUrl = (req, res, next) => {
   if (req.session.redirectUrl) {
     res.locals.redirectUrl = req.session.redirectUrl;
+  }
+  next();
+};
+
+module.exports.redirectIfAuthenticated = (req, res, next) => {
+  if (req.isAuthenticated()) {
+    return res.redirect("/listings");
   }
   next();
 };

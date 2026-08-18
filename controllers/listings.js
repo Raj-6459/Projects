@@ -1,5 +1,8 @@
 const Listing = require("../models/listing");
-const { uploadToCloudinary, deleteFromCloudinary } = require("../cloudConfig.js");
+const {
+  uploadToCloudinary,
+  deleteFromCloudinary,
+} = require("../cloudConfig.js");
 const {
   createGeocodingClient,
   fetchPointGeometry,
@@ -105,15 +108,26 @@ module.exports.updateListing = async (req, res) => {
 
   const previousLocation = listing.location;
   const previousCountry = listing.country;
+  const previousImageFilename = listing.image?.filename; // <-- add
 
   Object.assign(listing, req.body.listing);
 
   const locationChanged =
-    previousLocation !== listing.location || previousCountry !== listing.country;
+    previousLocation !== listing.location ||
+    previousCountry !== listing.country;
 
   await applyListingMediaAndGeometry(listing, req.file, {
     forceGeometryRefresh: locationChanged,
   });
+
+  // If a new image was uploaded, remove old Cloudinary image
+  if (
+    req.file &&
+    previousImageFilename &&
+    previousImageFilename !== listing.image?.filename
+  ) {
+    await deleteFromCloudinary(previousImageFilename);
+  }
 
   await listing.save();
 
